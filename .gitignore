@@ -1,0 +1,31 @@
+# =========================
+# Python用の除外設定
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 仮想環境（もし今後venvなどを使った場合のため）
+venv/
+env/
+.env
+
+# =========================
+# OSごとの除外設定
+# =========================
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# エディタの除外設定
+# =========================
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Numer0n Web System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Share Tech Mono', monospace, sans-serif; 
+            background: #121212; 
+            color: #e0e0e0; 
+            display: flex; justify-content: center; padding-top: 50px; 
+            margin: 0;
+        }
+        
+        #app { 
+            width: 800px; 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 229, 255, 0.1); 
+            border: 1px solid #333;
+            position: relative; 
+        }
+        
+        h1, h2, h3 { color: #00e5ff; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
+        
+        .screen { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #screen-start { text-align: center; position: relative; }
+        
+        .btn-help {
+            position: absolute; top: -10px; right: -10px;
+            width: 40px; height: 40px; border-radius: 20px;
+            background: transparent; border: 1px solid #00e5ff; color: #00e5ff;
+            display: flex; align-items: center; justify-content: flex-start;
+            overflow: hidden; white-space: nowrap; transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,229,255,0.2);
+            padding: 0;
+        }
+        .btn-help:hover { 
+            width: 150px; border-radius: 8px; 
+            background: rgba(0,229,255,0.1); box-shadow: 0 0 15px rgba(0,229,255,0.4); 
+        }
+        .btn-help .help-icon { 
+            font-size: 1.2rem; min-width: 40px; text-align: center; font-weight: bold; 
+        }
+        .btn-help .help-text { 
+            opacity: 0; transition: opacity 0.2s ease; font-size: 0.9rem; margin-left: 5px;
+        }
+        .btn-help:hover .help-text { opacity: 1; transition-delay: 0.1s; }
+
+        .difficulty-select { display: flex; justify-content: center; margin-bottom: 30px; gap: 15px; }
+        .difficulty-select input[type="radio"] { display: none; }
+        .btn-radio { 
+            display: inline-block; padding: 12px 25px; 
+            border: 2px solid #555; border-radius: 8px; 
+            cursor: pointer; color: #888; transition: all 0.3s ease; 
+            font-size: 1.1rem;
+        }
+        .difficulty-select input[type="radio"]:checked + .btn-radio { 
+            border-color: #00e5ff; color: #00e5ff; 
+            background: rgba(0, 229, 255, 0.05); 
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3) inset;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+        }
+        
+        .game-container { display: flex; gap: 30px; margin-top: 20px; }
+        .left-panel { flex: 1.2; }
+        .right-panel { flex: 1; display: flex; flex-direction: column; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        #timer-display { font-size: 1.8rem; font-weight: bold; color: #00e5ff; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+        .header-actions { display: flex; gap: 10px; }
+        
+        .input-display-area { display: flex; gap: 10px; margin-bottom: 15px; }
+        #num-input { 
+            flex: 1; font-size: 2rem; text-align: right; padding: 10px 15px; 
+            background: #0a0a0a; color: #00e5ff; border: 1px solid #444; 
+            border-radius: 8px; letter-spacing: 5px; font-family: inherit;
+        }
+        #num-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.2); }
+        
+        .tenkey { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .key { 
+            padding: 18px; font-size: 1.5rem; cursor: pointer; 
+            border: 1px solid #333; border-radius: 8px; 
+            background: #252525; color: #fff; font-family: inherit;
+            transition: all 0.1s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .key:hover { background: #333; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.5); }
+        .key:active { transform: translateY(1px); box-shadow: 0 2px 3px rgba(0,0,0,0.3); }
+        
+        .latest-result { 
+            background: linear-gradient(135deg, #0d222b 0%, #111 100%); 
+            padding: 25px; text-align: center; border-radius: 8px; margin-bottom: 15px; 
+            border: 1px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.1);
+        }
+        .latest-num { font-size: 2.5rem; font-weight: bold; letter-spacing: 8px; color: #fff; margin-bottom: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .latest-eat-bite { font-size: 1.4rem; color: #ff3366; font-weight: bold; text-shadow: 0 0 8px rgba(255,51,102,0.5); }
+        
+        .history-list { 
+            max-height: 280px; overflow-y: auto; 
+            border: 1px solid #333; padding: 15px; background: #181818; 
+            flex: 1; border-radius: 8px;
+        }
+        .history-list::-webkit-scrollbar { width: 8px; }
+        .history-list::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
+        .history-list::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        
+        .history-item { 
+            display: flex; justify-content: space-between; padding: 8px 5px; 
+            border-bottom: 1px solid #2a2a2a; font-size: 1.1rem; color: #aaa;
+        }
+        .history-item span:last-child { color: #fff; font-weight: bold; }
+        
+        button { cursor: pointer; font-family: inherit; text-transform: uppercase; font-weight: bold; transition: all 0.2s; }
+        .btn-primary { 
+            background: #00e5ff; color: #000; border: none; 
+            padding: 12px 25px; font-size: 1.2rem; border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+        }
+        .btn-primary:hover { background: #00c4db; box-shadow: 0 6px 20px rgba(0, 229, 255, 0.6); transform: translateY(-2px); }
+        
+        .btn-secondary { background: #444; color: #fff; border: 1px solid #555; padding: 10px 20px; border-radius: 8px; }
+        .btn-secondary:hover { background: #555; border-color: #666; }
+        
+        .btn-danger { background: transparent; color: #ff3366; border: 1px solid #ff3366; padding: 10px 15px; border-radius: 8px; }
+        .btn-danger:hover { background: rgba(255,51,102,0.1); box-shadow: 0 0 10px rgba(255,51,102,0.3); }
+        
+        .btn-small { padding: 6px 12px; font-size: 0.9rem; }
+        
+        .popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); border-radius: 12px; z-index: 100; }
+        .popup.active { display: flex; }
+        .popup-content { background: #1e1e1e; padding: 40px; border-radius: 12px; text-align: center; position: relative; width: 80%; border: 1px solid #444; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .popup-small { width: 60%; padding: 30px; }
+        .right-top { position: absolute; top: 15px; right: 15px; }
+
+        .howto-text { text-align: left; font-size: 1rem; line-height: 1.6; color: #ccc; margin-top: 20px; }
+        .howto-text strong { color: #00e5ff; }
+        .howto-text .highlight { color: #ff3366; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="screen-start" class="screen active">
+            <button id="btn-how-to" class="btn-help">
+                <span class="help-icon">?</span>
+                <span class="help-text">How to play?</span>
+            </button>
+            <h1 style="font-size: 3rem; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0,229,255,0.6);">Numer0n</h1>
+            <div class="difficulty-select">
+                <label><input type="radio" name="difficulty" value="4" checked><span class="btn-radio">Easy (4桁)</span></label>
+                <label><input type="radio" name="difficulty" value="5"><span class="btn-radio">Hard (5桁)</span></label>
+                <label><input type="radio" name="difficulty" value="6"><span class="btn-radio">Extreme (6桁)</span></label>
+            </div>
+            <button id="btn-start" class="btn-primary" style="margin-top: 20px; width: 200px;">Game Start</button>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <div class="header">
+                <span id="timer-display">00:00</span>
+                <div class="header-actions">
+                    <button id="btn-back-to-result" class="btn-primary btn-small" style="display: none;">結果画面に戻る</button>
+                    <button id="btn-retire" class="btn-danger btn-small">Retire</button>
+                </div>
+            </div>
+            <div class="game-container">
+                <div class="left-panel">
+                    <div class="input-display-area">
+                        <input type="text" id="num-input" readonly placeholder="----">
+                        <button id="btn-submit" class="btn-primary">Check</button>
+                    </div>
+                    <div class="tenkey">
+                        <button class="key" onclick="appendNum(7)">7</button>
+                        <button class="key" onclick="appendNum(8)">8</button>
+                        <button class="key" onclick="appendNum(9)">9</button>
+                        <button class="key" onclick="appendNum(4)">4</button>
+                        <button class="key" onclick="appendNum(5)">5</button>
+                        <button class="key" onclick="appendNum(6)">6</button>
+                        <button class="key" onclick="appendNum(1)">1</button>
+                        <button class="key" onclick="appendNum(2)">2</button>
+                        <button class="key" onclick="appendNum(3)">3</button>
+                        <button class="key" onclick="appendNum(0)" style="grid-column: span 2;">0</button>
+                        <button class="key btn-danger" style="border: 1px solid #ff3366; color: #ff3366;" onclick="clearInput()">C</button>
+                    </div>
+                </div>
+                <div class="right-panel">
+                    <div class="latest-result" id="latest-result">
+                        <div class="latest-num">----</div>
+                        <div class="latest-eat-bite">0 Eat - 0 Bite</div>
+                    </div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 10px;">System Log</h3>
+                    <div class="history-list" id="history-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-result" class="screen popup">
+            <div class="popup-content">
+                <button id="btn-view-history" class="btn-secondary btn-small right-top">View History</button>
+                <h2 id="result-title" style="font-size: 2.5rem; margin-bottom: 10px;">Clear!</h2>
+                <p style="font-size: 1.2rem;">Secret Code: <strong id="result-secret" style="font-size: 2rem; color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.4);"></strong></p>
+                <p>Time: <span id="result-time" style="color: #00e5ff;"></span></p>
+                <p>Attempts: <span id="result-attempts" style="color: #00e5ff;"></span></p>
+                
+                <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                    <button id="btn-retry-same" class="btn-primary">Retry</button>
+                    <button id="btn-retry-other" class="btn-secondary">Change Level</button>
+                    <button id="btn-end" class="btn-danger">Exit</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="popup-how-to" class="screen popup">
+            <div class="popup-content">
+                <button id="btn-close-howto" class="btn-danger btn-small right-top">X</button>
+                <h2>SYSTEM MANUAL</h2>
+                <div class="howto-text">
+                    隠された暗号（数字）を解読するシステム。<br><br>
+                    <strong>[ EAT ]</strong> 数字と場所が完全に一致している数<br>
+                    <span class="highlight"><strong>[ BITE ]</strong></span> 数字は合っているが場所が違う数<br><br>
+                    これら2つのログを頼りに、最短で暗号を特定せよ。<br>
+                    ※Extremeのみ、同じ数字が複数含まれる可能性がある。
+                </div>
+            </div>
+        </div>
+
+        <div id="popup-alert" class="screen popup">
+            <div class="popup-content popup-small">
+                <h2 style="color: #ff3366;">SYSTEM MESSAGE</h2>
+                <p id="alert-msg" style="font-size: 1.2rem; margin: 20px 0;"></p>
+                <button id="btn-alert-ok" class="btn-primary">OK</button>
+            </div>
+        </div>
+
+        <div id="popup-confirm" class="screen popup">
+            <div class="popup-content popup-small">
+                <h2 style="color: #ff3366;">CONFIRMATION</h2>
+                <p id="confirm-msg" style="font-size: 1.2rem; margin: 20px 0;"></p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="btn-confirm-yes" class="btn-danger">YES</button>
+                    <button id="btn-confirm-no" class="btn-secondary">NO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDifficulty = 4;
+        let attempts = 0;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        const startScreen = document.getElementById('screen-start');
+        const gameScreen = document.getElementById('screen-game');
+        const resultScreen = document.getElementById('screen-result');
+        const inputField = document.getElementById('num-input');
+        const historyList = document.getElementById('history-list');
+
+        function customAlert(msg) {
+            return new Promise((resolve) => {
+                document.getElementById('alert-msg').innerText = msg;
+                document.getElementById('popup-alert').classList.add('active');
+                
+                document.getElementById('btn-alert-ok').onclick = () => {
+                    document.getElementById('popup-alert').classList.remove('active');
+                    resolve();
+                };
+            });
+        }
+
+        function customConfirm(msg) {
+            return new Promise((resolve) => {
+                document.getElementById('confirm-msg').innerText = msg;
+                document.getElementById('popup-confirm').classList.add('active');
+                
+                document.getElementById('btn-confirm-yes').onclick = () => {
+                    document.getElementById('popup-confirm').classList.remove('active');
+                    resolve(true);
+                };
+                document.getElementById('btn-confirm-no').onclick = () => {
+                    document.getElementById('popup-confirm').classList.remove('active');
+                    resolve(false);
+                };
+            });
+        }
+
+        document.getElementById('btn-how-to').addEventListener('click', () => {
+            document.getElementById('popup-how-to').classList.add('active');
+        });
+        document.getElementById('btn-close-howto').addEventListener('click', () => {
+            document.getElementById('popup-how-to').classList.remove('active');
+        });
+
+        document.getElementById('btn-start').addEventListener('click', async () => {
+            currentDifficulty = parseInt(document.querySelector('input[name="difficulty"]:checked').value);
+            
+            await fetch('/api/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ difficulty: currentDifficulty })
+            });
+            
+            attempts = 0; secondsElapsed = 0; inputField.value = ""; historyList.innerHTML = "";
+            document.getElementById('latest-result').innerHTML = `<div class="latest-num">----</div><div class="latest-eat-bite">0 Eat - 0 Bite</div>`;
+            
+            startScreen.classList.remove('active'); gameScreen.classList.add('active');
+            
+            clearInterval(timerInterval);
+            document.getElementById('timer-display').innerText = "00:00";
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const s = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+            }, 1000);
+        });
+
+        window.appendNum = (num) => { if (inputField.value.length < currentDifficulty) inputField.value += num; };
+        window.clearInput = () => { inputField.value = ""; };
+
+        document.getElementById('btn-submit').addEventListener('click', async () => {
+            const guess = inputField.value;
+            
+            if (guess.length !== currentDifficulty) {
+                customAlert(`${currentDifficulty}桁の数字を入力しろ。`); return;
+            }
+            if (currentDifficulty !== 6 && new Set(guess.split('')).size !== guess.length) {
+                customAlert("同じ数字は2回以上使えない。"); return;
+            }
+
+            attempts++;
+            const response = await fetch('/api/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ guess: guess })
+            });
+            const result = await response.json();
+            
+            document.getElementById('latest-result').innerHTML = `
+                <div class="latest-num">${guess}</div>
+                <div class="latest-eat-bite">${result.eat} Eat - ${result.bite} Bite</div>
+            `;
+            const historyHtml = `<div class="history-item"><span>[${String(attempts).padStart(2, '0')}] ${guess}</span><span>${result.eat}E ${result.bite}B</span></div>`;
+            historyList.insertAdjacentHTML('afterbegin', historyHtml);
+            inputField.value = "";
+            
+            if (result.is_clear) {
+                showResult("ACCESS GRANTED", result.secret, result.clear_time);
+            }
+        });
+
+        document.getElementById('btn-retire').addEventListener('click', async () => {
+            if(await customConfirm("調査を諦めようか?")) {
+                const res = await fetch('/api/retire', { method: 'POST' });
+                const data = await res.json();
+                showResult("SYSTEM OFFLINE", data.secret, "--:--");
+            }
+        });
+
+        function showResult(title, answer, timeStr) {
+            clearInterval(timerInterval);
+            document.getElementById('result-title').innerText = title;
+            document.getElementById('result-secret').innerText = answer;
+            document.getElementById('result-time').innerText = timeStr;
+            document.getElementById('result-attempts').innerText = attempts;
+            resultScreen.classList.add('active');
+        }
+        
+        document.getElementById('btn-view-history').addEventListener('click', () => {
+            resultScreen.classList.remove('active');
+            document.getElementById('btn-back-to-result').style.display = 'block';
+            document.getElementById('btn-retire').style.display = 'none';
+        });
+
+        document.getElementById('btn-back-to-result').addEventListener('click', () => {
+            resultScreen.classList.add('active');
+            document.getElementById('btn-back-to-result').style.display = 'none';
+            document.getElementById('btn-retire').style.display = 'block';
+        });
+
+        document.getElementById('btn-retry-same').addEventListener('click', () => { 
+            resultScreen.classList.remove('active'); gameScreen.classList.remove('active'); 
+            document.getElementById('btn-back-to-result').style.display = 'none'; document.getElementById('btn-retire').style.display = 'block';
+            document.getElementById('btn-start').click(); 
+        });
+
+        document.getElementById('btn-retry-other').addEventListener('click', () => { 
+            resultScreen.classList.remove('active'); gameScreen.classList.remove('active'); startScreen.classList.add('active'); 
+            document.getElementById('btn-back-to-result').style.display = 'none'; document.getElementById('btn-retire').style.display = 'block';
+        });
+
+        document.getElementById('btn-end').addEventListener('click', async () => {
+            await customAlert("調査終了。次の行動に移れ。");
+            resultScreen.classList.remove('active');
+            gameScreen.classList.remove('active');
+            startScreen.classList.add('active');
+            document.getElementById('btn-back-to-result').style.display = 'none';
+            document.getElementById('btn-retire').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
