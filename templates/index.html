@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <!-- ↓魔法1：スマホの画面サイズに合わせて正しく表示させるための必須タグ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Numer0n Web System</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
@@ -9,18 +11,22 @@
             font-family: 'Share Tech Mono', monospace, sans-serif; 
             background: #121212; 
             color: #e0e0e0; 
-            display: flex; justify-content: center; padding-top: 50px; 
+            display: flex; justify-content: center; padding-top: 5vh; 
             margin: 0;
+            min-height: 100vh; /* スマホでスクロールした時の余白確保 */
+            box-sizing: border-box;
         }
         
         #app { 
-            width: 800px; 
+            width: 95%; /* スマホ画面いっぱいに広げる */
+            max-width: 800px; /* PCでは800pxで止める */
             background: #1e1e1e; 
             padding: 30px; 
             border-radius: 12px; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 229, 255, 0.1); 
             border: 1px solid #333;
             position: relative; 
+            box-sizing: border-box;
         }
         
         h1, h2, h3 { color: #00e5ff; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
@@ -38,7 +44,7 @@
             display: flex; align-items: center; justify-content: flex-start;
             overflow: hidden; white-space: nowrap; transition: all 0.3s ease;
             box-shadow: 0 0 10px rgba(0,229,255,0.2);
-            padding: 0;
+            padding: 0; z-index: 10;
         }
         .btn-help:hover { 
             width: 150px; border-radius: 8px; 
@@ -58,7 +64,7 @@
             display: inline-block; padding: 12px 25px; 
             border: 2px solid #555; border-radius: 8px; 
             cursor: pointer; color: #888; transition: all 0.3s ease; 
-            font-size: 1.1rem;
+            font-size: 1.1rem; width: 100%; box-sizing: border-box;
         }
         .difficulty-select input[type="radio"]:checked + .btn-radio { 
             border-color: #00e5ff; color: #00e5ff; 
@@ -79,7 +85,7 @@
         #num-input { 
             flex: 1; font-size: 2rem; text-align: right; padding: 10px 15px; 
             background: #0a0a0a; color: #00e5ff; border: 1px solid #444; 
-            border-radius: 8px; letter-spacing: 5px; font-family: inherit;
+            border-radius: 8px; letter-spacing: 5px; font-family: inherit; width: 100%; box-sizing: border-box;
         }
         #num-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0,229,255,0.2); }
         
@@ -89,7 +95,7 @@
             border: 1px solid #333; border-radius: 8px; 
             background: #252525; color: #fff; font-family: inherit;
             transition: all 0.1s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); touch-action: manipulation; /* スマホでのズーム防止 */
         }
         .key:hover { background: #333; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.5); }
         .key:active { transform: translateY(1px); box-shadow: 0 2px 3px rgba(0,0,0,0.3); }
@@ -117,7 +123,7 @@
         }
         .history-item span:last-child { color: #fff; font-weight: bold; }
         
-        button { cursor: pointer; font-family: inherit; text-transform: uppercase; font-weight: bold; transition: all 0.2s; }
+        button { cursor: pointer; font-family: inherit; text-transform: uppercase; font-weight: bold; transition: all 0.2s; box-sizing: border-box; }
         .btn-primary { 
             background: #00e5ff; color: #000; border: none; 
             padding: 12px 25px; font-size: 1.2rem; border-radius: 8px; 
@@ -135,13 +141,49 @@
         
         .popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); border-radius: 12px; z-index: 100; }
         .popup.active { display: flex; }
-        .popup-content { background: #1e1e1e; padding: 40px; border-radius: 12px; text-align: center; position: relative; width: 80%; border: 1px solid #444; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .popup-content { background: #1e1e1e; padding: 40px; border-radius: 12px; text-align: center; position: relative; width: 80%; box-sizing: border-box; border: 1px solid #444; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
         .popup-small { width: 60%; padding: 30px; }
         .right-top { position: absolute; top: 15px; right: 15px; }
 
         .howto-text { text-align: left; font-size: 1rem; line-height: 1.6; color: #ccc; margin-top: 20px; }
         .howto-text strong { color: #00e5ff; }
         .howto-text .highlight { color: #ff3366; }
+
+        /* ↓魔法2：ここから下がスマホ専用のCSS（レスポンシブ対応） */
+        @media (max-width: 600px) {
+            body { padding-top: 10px; }
+            #app { padding: 20px; }
+            h1 { font-size: 2.2rem !important; margin-bottom: 25px !important; }
+            
+            /* 難易度ボタンを縦並びに */
+            .difficulty-select { flex-direction: column; gap: 10px; margin-bottom: 20px; }
+            #btn-start { width: 100% !important; }
+
+            /* 左右のパネルを上下の縦並びに（スマホの幅に収めるため） */
+            .game-container { flex-direction: column; gap: 20px; }
+            
+            /* 入力欄とボタンの調整 */
+            .input-display-area { flex-direction: row; }
+            #num-input { font-size: 1.5rem; letter-spacing: 3px; padding: 10px; }
+            #btn-submit { font-size: 1rem; padding: 10px 15px; }
+            
+            /* テンキーのサイズを少しコンパクトに */
+            .key { padding: 15px; font-size: 1.3rem; gap: 8px; }
+            
+            /* リザルト画面やポップアップのサイズ調整 */
+            .latest-result { padding: 15px; }
+            .latest-num { font-size: 2rem; letter-spacing: 5px; }
+            .latest-eat-bite { font-size: 1.1rem; }
+            
+            .popup-content { padding: 25px 15px; width: 95%; }
+            .popup-small { width: 95%; }
+            #result-title { font-size: 2rem !important; }
+            #result-secret { font-size: 1.5rem !important; }
+            
+            /* リザルト画面のボタン群を折り返す */
+            #screen-result .popup-content div[style*="display: flex"] { flex-wrap: wrap; gap: 10px; }
+            #screen-result button { flex: 1; min-width: 120px; }
+        }
     </style>
 </head>
 <body>
@@ -220,11 +262,11 @@
                 <button id="btn-close-howto" class="btn-danger btn-small right-top">X</button>
                 <h2>SYSTEM MANUAL</h2>
                 <div class="howto-text">
-                    隠された暗号（数字）を解読するシステム。<br><br>
+                    隠された暗号（数字）を解読するシステムです。<br><br>
                     <strong>[ EAT ]</strong> 数字と場所が完全に一致している数<br>
                     <span class="highlight"><strong>[ BITE ]</strong></span> 数字は合っているが場所が違う数<br><br>
-                    これら2つのログを頼りに、最短で暗号を特定せよ。<br>
-                    ※Extremeのみ、同じ数字が複数含まれる可能性がある。
+                    これら2つのログを頼りに、最短で正解を導き出してください。<br>
+                    ※Extremeモードのみ、同じ数字が複数含まれる可能性があります。
                 </div>
             </div>
         </div>
